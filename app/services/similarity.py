@@ -1,20 +1,19 @@
+from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from app.config import SEMANTIC_MODEL_NAME
 
-model = SentenceTransformer(SEMANTIC_MODEL_NAME)
+@lru_cache(maxsize=1)
+def get_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
 
 
-def compute_semantic_similarity(text1: str, text2: str) -> float:
-    """
-    Return semantic similarity as percentage.
-    """
-    if not text1.strip() or not text2.strip():
+def compute_semantic_similarity(resume_text: str, job_description: str) -> float:
+    if not resume_text or not job_description:
         return 0.0
 
-    embeddings = model.encode([text1, text2], normalize_embeddings=True)
-    similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+    model = get_model()
+    embeddings = model.encode([resume_text, job_description])
 
-    similarity = max(0.0, min(float(similarity), 1.0))
-    return round(similarity * 100, 2)
+    score = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+    return max(0.0, min(100.0, float(score) * 100))
