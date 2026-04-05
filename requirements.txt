@@ -1,7 +1,12 @@
 streamlit
+requests
 fastapi
 uvicorn
 pydantic
 pdfplumber
 PyMuPDF
 PyPDF2
+python-multipart
+numpy
+scikit-learn
+sentence-transformers
