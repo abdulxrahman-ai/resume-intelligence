@@ -902,11 +902,6 @@ if analyze:
                     suggestions = result.get("suggestions", [])
 
                     st.markdown("<hr>", unsafe_allow_html=True)
-                    st.markdown("<div class='section-title'>Results</div>", unsafe_allow_html=True)
-                    st.markdown(
-                        "<div class='section-sub'>Review the high-level summary first, then move into live activity, skill cards, and improvement guidance.</div>",
-                        unsafe_allow_html=True,
-                    )
 
                     m1, m2, m3, m4 = st.columns(4)
                     with m1:
@@ -1016,4 +1011,7 @@ st.markdown(
         </div>
     </div>
 </div>
-<div class="footer-note">By Abdul Rahman</div
+<div class="footer-note">By Abdul Rahman</div>
+""",
+    unsafe_allow_html=True,
+)
