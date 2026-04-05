@@ -403,7 +403,7 @@ export default function Page() {
                 </a>
 
                 <a
-                  href="https://github.com/abdulxrahman-ai/resume-intelligence"
+                  href="https://resume-intelligence1.streamlit.app"
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
