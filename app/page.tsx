@@ -383,36 +383,34 @@ export default function Page() {
                 <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700">Resume Analysis</span>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="https://resume-intelligence1.streamlit.app"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
-                >
-                  Live Demo
-                </a>
+             <div className="mt-6 flex flex-wrap gap-3">
+  <a
+    href="https://resume-intelligence1.streamlit.app"
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+  >
+    Live Demo
+  </a>
 
-                <a
-                  href="https://resume-intelligence-aggi.onrender.com/healthz"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
-                >
-                  Backend API
-                </a>
+  <a
+    href="https://resume-intelligence-aggi.onrender.com/healthz"
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+  >
+    Backend API
+  </a>
 
-                <a
-                  href="https://resume-intelligence1.streamlit.app"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
-                >
-                  GitHub
-                </a>
-              </div>
-            </div>
-          </div>
+  <a
+    href="https://github.com/abdulxrahman-ai/resume-intelligence"
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+  >
+    GitHub
+  </a>
+</div>
         </Section>
 
         <Section id="skills" eyebrow="Skills" title="Core strengths being built and applied.">
