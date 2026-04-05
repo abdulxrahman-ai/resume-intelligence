@@ -24,11 +24,6 @@ app.include_router(match_router)
 def root() -> dict[str, str]:
     return {"message": "Resume Job Matcher API is running."}
 
-
-@app.get("/health")
-def health_check() -> dict[str, str]:
-    return {"status": "ok"}
-    
 @app.get("/healthz")
-def health():
+def healthz():
     return {"status": "ok"}
