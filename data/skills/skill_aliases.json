@@ -1,0 +1,17 @@
+{
+  "ml": "machine learning",
+  "dl": "deep learning",
+  "nlp": "natural language processing",
+  "cv": "computer vision",
+  "llms": "llm",
+  "large language models": "llm",
+  "scikit learn": "scikit-learn",
+  "sklearn": "scikit-learn",
+  "tf": "tensorflow",
+  "pytorch lightning": "pytorch",
+  "postgres": "postgresql",
+  "restful api": "rest api",
+  "api": "api development",
+  "aws cloud": "aws",
+  "huggingface": "hugging face"
+}
