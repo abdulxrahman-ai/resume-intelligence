@@ -8,41 +8,41 @@ An AI-powered Resume Analyzer that evaluates how well a resume matches a job des
 
 This project is designed to simulate how modern hiring systems and recruiters evaluate resumes. It analyzes resumes against job descriptions and provides:
 
-- Match score (overall fit)
-- Skill gap analysis
-- Semantic similarity evaluation
-- Keyword relevance
-- Actionable improvement suggestions
+ Match score (overall fit)
+ Skill gap analysis
+ Semantic similarity evaluation
+ Keyword relevance
+ Actionable improvement suggestions
 
 ---
 
 ## Features
 
-- Resume vs Job Description matching
-- Circular score visualization (Match, Skills, Semantic, Keywords)
-- Skill comparison (Resume vs Job vs Missing)
-- Live improvement insights
-- Clean dashboard UI
-- Contact section for portfolio use
+ Resume vs Job Description matching
+ Circular score visualization (Match, Skills, Semantic, Keywords)
+ Skill comparison (Resume vs Job vs Missing)
+ Live improvement insights
+ Clean dashboard UI
+ Contact section for portfolio use
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-- Streamlit
-- Custom CSS
-- Interactive dashboard UI
+ Streamlit
+ Custom CSS
+ Interactive dashboard UI
 
 ### Backend
-- FastAPI
-- Python
+ FastAPI
+ Python
 
 ### AI / NLP
-- Sentence Transformers
-- Skill extraction
-- Keyword matching
-- Resume parsing
+ Sentence Transformers
+ Skill extraction
+ Keyword matching
+ Resume parsing
 
 ---
 
@@ -76,13 +76,13 @@ python -m streamlit run streamlit_app.py --server.port 8502
 
 ## Skills Demonstrated
 
-- Python
-- FastAPI
-- Streamlit
-- NLP
-- Semantic similarity
-- UI/UX design
-- Full-stack development
+ Python
+ FastAPI
+ Streamlit
+ NLP
+ Semantic similarity
+ UI/UX design
+ Full-stack development
 
 ---
 
