@@ -9,5 +9,4 @@ PyPDF2
 python-multipart
 numpy
 scikit-learn
-sentence-transformers
-torch
+
