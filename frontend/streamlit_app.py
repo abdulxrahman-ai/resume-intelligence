@@ -31,6 +31,11 @@ st.markdown("""
     --shadow-hover:0 16px 40px rgba(15,23,42,0.10);
 }
 
+/* ===== Smooth Scroll ===== */
+html{
+    scroll-behavior:smooth;
+}
+
 /* Hide Streamlit chrome */
 header[data-testid="stHeader"] {display:none !important;}
 [data-testid="stToolbar"] {display:none !important;}
@@ -89,8 +94,12 @@ div[data-baseweb="textarea"] textarea{
     color:var(--text) !important;
     border-radius:16px !important;
     border:1px solid var(--line-strong) !important;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     box-shadow: var(--shadow);
+}
+
+div[data-baseweb="textarea"] textarea:hover{
+    transform: translateY(-1px);
 }
 
 div[data-baseweb="textarea"] textarea:focus{
@@ -141,6 +150,12 @@ div.stButton > button:hover{
     box-shadow:var(--shadow);
     position:relative;
     overflow:hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-main:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .hero-main::after{
@@ -203,6 +218,12 @@ div.stButton > button:hover{
     font-weight:700;
     font-size:14px;
     box-shadow:var(--shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.hero-action-secondary:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
 }
 
 .hero-side{
@@ -211,6 +232,12 @@ div.stButton > button:hover{
     border-radius:28px;
     padding:26px;
     box-shadow:var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-side:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .side-title{
@@ -385,6 +412,12 @@ div.stButton > button:hover{
     min-height:320px;
     display:flex;
     flex-direction:column;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.group-card:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .card-title{
@@ -441,6 +474,12 @@ div.stButton > button:hover{
     padding:18px;
     box-shadow:var(--shadow);
     min-height:250px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.live-card:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .live-card-title{
@@ -482,6 +521,12 @@ div.stButton > button:hover{
     border-radius:22px;
     padding:18px;
     box-shadow:var(--shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.improve-wrap:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .improve-item{
@@ -491,6 +536,12 @@ div.stButton > button:hover{
     border-radius:16px;
     padding:14px 16px;
     margin-bottom:12px;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.improve-item:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
 }
 
 .improve-item:last-child{
@@ -516,6 +567,12 @@ div.stButton > button:hover{
     padding:22px;
     box-shadow:var(--shadow);
     margin-top:28px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.contact-wrap:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 .contact-grid{
@@ -530,6 +587,12 @@ div.stButton > button:hover{
     border:1px solid var(--line);
     border-radius:16px;
     padding:16px;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.contact-card:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
 }
 
 .contact-label{
@@ -577,6 +640,131 @@ hr{
     border:none;
     border-top:1px solid var(--line);
     margin:24px 0;
+}
+
+/* ===== Soft Scroll Reveal ===== */
+.fade-up{
+    opacity:0;
+    transform:translateY(24px);
+    animation:fadeUp 0.75s ease forwards;
+    will-change:opacity, transform;
+}
+
+.fade-delay-1{animation-delay:0.08s;}
+.fade-delay-2{animation-delay:0.16s;}
+.fade-delay-3{animation-delay:0.24s;}
+.fade-delay-4{animation-delay:0.32s;}
+.fade-delay-5{animation-delay:0.40s;}
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(24px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== Auto Dark Mode ===== */
+@media (prefers-color-scheme: dark){
+    :root{
+        --bg:#0b1220;
+        --surface:#0f172a;
+        --text:#e2e8f0;
+        --muted:#94a3b8;
+        --line:#1e293b;
+        --line-strong:#334155;
+        --primary:#3b82f6;
+        --primary-hover:#2563eb;
+        --primary-soft:#172554;
+        --success:#10b981;
+        --warning:#f59e0b;
+        --danger:#ef4444;
+        --purple:#8b5cf6;
+        --shadow:0 10px 30px rgba(0,0,0,0.35);
+        --shadow-hover:0 16px 40px rgba(0,0,0,0.50);
+    }
+
+    .stApp{
+        background: linear-gradient(180deg, #020617 0%, #0b1220 100%);
+        color: var(--text);
+    }
+
+    h1,h2,h3,h4,h5,h6,p,label,div,span{
+        color: var(--text);
+    }
+
+    .hero-main,
+    .hero-side,
+    .digest-card,
+    .metric-card,
+    .group-card,
+    .live-card,
+    .improve-wrap,
+    .contact-wrap,
+    div[data-testid="stFileUploader"] > section,
+    div[data-baseweb="textarea"] textarea{
+        background: var(--surface) !important;
+        color: var(--text) !important;
+        border-color: var(--line) !important;
+    }
+
+    .hero-main{
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    }
+
+    .hero-side{
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    }
+
+    .hero-main::after{
+        background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 70%);
+    }
+
+    .hero-action-secondary,
+    .side-list-item,
+    .live-item,
+    .improve-item,
+    .contact-card{
+        background:#020617 !important;
+        border-color: var(--line) !important;
+        color: var(--text) !important;
+    }
+
+    .digest-text,
+    .hero-text,
+    .side-text,
+    .side-list-text,
+    .live-text,
+    .improve-text,
+    .small-note,
+    .section-sub,
+    .card-sub,
+    .metric-sub{
+        color: var(--muted) !important;
+    }
+
+    .assessment{
+        background: linear-gradient(90deg, rgba(30,58,138,0.35), rgba(15,23,42,0.75));
+        border-color: rgba(59,130,246,0.45);
+        color: #bfdbfe;
+    }
+
+    .hero-chip{
+        background: rgba(37,99,235,0.14);
+        border-color: rgba(59,130,246,0.35);
+        color: #bfdbfe;
+    }
+
+    .circle-value{
+        fill: var(--text);
+    }
+
+    .circle-label{
+        fill: var(--muted);
+    }
 }
 
 @media (max-width: 1100px){
@@ -662,7 +850,7 @@ def render_score_card(title, value, subtitle=""):
     value = clamp_score(value)
     color = get_score_color(value)
     st.markdown(
-        f"""<div class="metric-card">
+        f"""<div class="metric-card fade-up">
 <div class="metric-title">{title}</div>
 <div class="circle-wrap">{circular_progress_svg(value, color)}</div>
 <div class="metric-sub">{subtitle}</div>
@@ -681,7 +869,7 @@ def render_skill_card(title, subtitle, items, color):
         else "<div class='small-note'>None</div>"
     )
     st.markdown(
-        f"""<div class="group-card">
+        f"""<div class="group-card fade-up">
 <div class="card-title">{title}</div>
 <div class="card-sub">{subtitle}</div>
 <div class="skill-chip-row">{chips}</div>
@@ -698,7 +886,7 @@ def render_live_card(card_title, items):
 <div class="live-text">{text}</div>
 </div>"""
     st.markdown(
-        f"""<div class="live-card">
+        f"""<div class="live-card fade-up">
 <div class="live-card-title">{card_title}</div>
 {inner}
 </div>""",
@@ -718,7 +906,7 @@ def render_improvements_card(suggestions):
             for idx, suggestion in enumerate(suggestions, start=1)
         )
     st.markdown(
-        f"""<div class="improve-wrap">{body}</div>""",
+        f"""<div class="improve-wrap fade-up">{body}</div>""",
         unsafe_allow_html=True,
     )
 
@@ -772,7 +960,7 @@ def build_live_updates(missing_skills, keyword_score, final_score, semantic_simi
 header_left, header_right = st.columns([0.82, 0.18])
 
 with header_left:
-    st.markdown("<div class='header-row-title'>AI Resume Analyzer</div>", unsafe_allow_html=True)
+    st.markdown("<div class='header-row-title fade-up'>AI Resume Analyzer</div>", unsafe_allow_html=True)
 
 with header_right:
     with st.popover("About", use_container_width=True):
@@ -802,7 +990,7 @@ with header_right:
         )
 
 st.markdown(
-    """<div class="hero-wrap">
+    """<div class="hero-wrap fade-up fade-delay-1">
 <div class="hero-main">
 <div class="hero-chip">Resume review workflow</div>
 <div class="hero-title">Faster resume reviews with actionable insights</div>
@@ -841,7 +1029,7 @@ and structured recommendations that help improve alignment for the target role.
 )
 
 st.markdown(
-    """<div class="digest-grid">
+    """<div class="digest-grid fade-up fade-delay-2">
 <div class="digest-card">
 <div class="digest-kicker">Overview</div>
 <div class="digest-title">Structured score breakdown</div>
@@ -866,9 +1054,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown("<div class='section-title'>Input</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-title fade-up fade-delay-3'>Input</div>", unsafe_allow_html=True)
 st.markdown(
-    "<div class='section-sub'>Upload a resume and paste a job description to generate a fit analysis.</div>",
+    "<div class='section-sub fade-up fade-delay-3'>Upload a resume and paste a job description to generate a fit analysis.</div>",
     unsafe_allow_html=True,
 )
 
@@ -902,9 +1090,9 @@ if analyze:
                     suggestions = result.get("suggestions", [])
 
                     st.markdown("<hr>", unsafe_allow_html=True)
-                    st.markdown("<div class='section-title'>Results</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='section-title fade-up'>Results</div>", unsafe_allow_html=True)
                     st.markdown(
-                        "<div class='section-sub'>Review the high-level summary first, then move into live activity, skill cards, and improvement guidance.</div>",
+                        "<div class='section-sub fade-up fade-delay-1'>Review the high-level summary first, then move into live activity, skill cards, and improvement guidance.</div>",
                         unsafe_allow_html=True,
                     )
 
@@ -919,13 +1107,13 @@ if analyze:
                         render_score_card("Keyword Score", keyword_score, "Keyword relevance")
 
                     st.markdown(
-                        f"<div class='assessment'>Overall Assessment: {result.get('score_band', get_score_label(final_score))}</div>",
+                        f"<div class='assessment fade-up fade-delay-2'>Overall Assessment: {result.get('score_band', get_score_label(final_score))}</div>",
                         unsafe_allow_html=True,
                     )
 
-                    st.markdown("<div class='section-title'>Live activity</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='section-title fade-up'>Live activity</div>", unsafe_allow_html=True)
                     st.markdown(
-                        "<div class='section-sub'>These are the most important updates currently needed to make the resume stronger for this role.</div>",
+                        "<div class='section-sub fade-up fade-delay-1'>These are the most important updates currently needed to make the resume stronger for this role.</div>",
                         unsafe_allow_html=True,
                     )
 
@@ -945,9 +1133,9 @@ if analyze:
                     with right_col:
                         render_live_card("Recommended focus", right_updates if right_updates else left_updates)
 
-                    st.markdown("<div class='section-title'>Skill cards</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='section-title fade-up'>Skill cards</div>", unsafe_allow_html=True)
                     st.markdown(
-                        "<div class='section-sub'>Each skill group sits in its own card so the review is easier to scan and compare.</div>",
+                        "<div class='section-sub fade-up fade-delay-1'>Each skill group sits in its own card so the review is easier to scan and compare.</div>",
                         unsafe_allow_html=True,
                     )
 
@@ -974,9 +1162,9 @@ if analyze:
                             "#8b5cf6",
                         )
 
-                    st.markdown("<div class='section-title'>Resume improvements</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='section-title fade-up'>Resume improvements</div>", unsafe_allow_html=True)
                     st.markdown(
-                        "<div class='section-sub'>Use these recommendations as the next editing pass for summary, project bullets, evidence, and positioning.</div>",
+                        "<div class='section-sub fade-up fade-delay-1'>Use these recommendations as the next editing pass for summary, project bullets, evidence, and positioning.</div>",
                         unsafe_allow_html=True,
                     )
 
@@ -986,15 +1174,15 @@ if analyze:
                 st.error(f"Error: {str(e)}")
 
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
+st.markdown("<div class='section-title fade-up'>Contact</div>", unsafe_allow_html=True)
 st.markdown(
-    "<div class='section-sub'>Get in touch for collaboration, project discussions, or portfolio opportunities.</div>",
+    "<div class='section-sub fade-up fade-delay-1'>Get in touch for collaboration, project discussions, or portfolio opportunities.</div>",
     unsafe_allow_html=True,
 )
 
 st.markdown(
     """
-<div class="contact-wrap">
+<div class="contact-wrap fade-up fade-delay-2">
     <div class="contact-grid">
         <div class="contact-card">
             <div class="contact-label">Email</div>
@@ -1012,7 +1200,7 @@ st.markdown(
         </div>
     </div>
 </div>
-<div class="footer-note">By Abdul Rahman</div>
+<div class="footer-note fade-up fade-delay-3">By Abdul Rahman</div>
 """,
     unsafe_allow_html=True,
 )
