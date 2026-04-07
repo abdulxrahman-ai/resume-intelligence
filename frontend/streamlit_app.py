@@ -1,349 +1,1018 @@
-import React, { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  ChevronDown,
-  FileText,
-  BarChart3,
-  Lightbulb,
-  Target,
-  Activity,
-  Brain,
-  Upload,
-  CheckCircle2,
-  Sparkles,
-  X,
-} from "lucide-react";
+import streamlit as st
+import requests
 
-const navItems = [
-  { label: "Overview", icon: FileText },
-  { label: "Input", icon: Upload },
-  { label: "Results", icon: BarChart3 },
-  { label: "Live activity", icon: Activity },
-  { label: "Skill cards", icon: Brain },
-  { label: "Resume improvements", icon: Lightbulb },
-];
+BACKEND_URL = "http://127.0.0.1:8501/match"
 
-const digestCards = [
-  {
-    title: "ATS fit snapshot",
-    description:
-      "See how strongly the resume aligns with a target AI/ML role before applying.",
-    icon: Target,
-  },
-  {
-    title: "Skill gap analysis",
-    description:
-      "Identify missing tools, frameworks, and role-specific keywords from the description.",
-    icon: Brain,
-  },
-  {
-    title: "Actionable improvements",
-    description:
-      "Get concrete bullet rewrites and stronger phrasing suggestions for each section.",
-    icon: Lightbulb,
-  },
-  {
-    title: "Live review guidance",
-    description:
-      "Follow the review flow and improve your resume with structured feedback.",
-    icon: Activity,
-  },
-];
+st.set_page_config(
+    page_title="AI Resume Analyzer",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
-const featureCards = [
-  {
-    title: "Circular metrics",
-    body: "Final score, skill fit, semantic fit, and keyword match in one clean summary.",
-  },
-  {
-    title: "Hiring-focused review",
-    body: "Highlights strengths, gaps, and the most important improvements for the target role.",
-  },
-  {
-    title: "Valuable updates",
-    body: "Transforms generic bullet points into clearer, outcome-driven statements.",
-  },
-];
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-const projectOverviewPoints = [
-  "I built AI Resume Analyzer to help candidates review their resumes with more clarity before applying.",
-  "The project compares a resume against a target role and turns that comparison into structured insights.",
-  "Instead of only showing a score, it explains strengths, missing skills, weak phrasing, and practical improvement opportunities.",
-  "The goal of the project is to make resume review faster, more actionable, and easier to understand for job seekers.",
-];
+:root{
+    --bg:#f7f9fc;
+    --surface:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line-strong:#dbe4f0;
+    --primary:#2563eb;
+    --primary-hover:#1d4ed8;
+    --primary-soft:#eff6ff;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+    --purple:#8b5cf6;
+    --shadow:0 10px 30px rgba(15,23,42,0.06);
+    --shadow-hover:0 16px 40px rgba(15,23,42,0.10);
+}
 
-const howItWorksSteps = [
-  "I upload a resume and provide the target job description I want to match.",
-  "The system analyzes the content for relevance, skill alignment, keyword coverage, and semantic fit.",
-  "It then organizes the findings into a readable dashboard with scores, observations, and improvement cards.",
-  "Finally, I use those insights to refine the resume so it is stronger, more role-focused, and more ATS-friendly.",
-];
+/* Hide Streamlit chrome */
+header[data-testid="stHeader"] {display:none !important;}
+[data-testid="stToolbar"] {display:none !important;}
+[data-testid="stDecoration"] {display:none !important;}
+[data-testid="collapsedControl"] {display:none !important;}
+section[data-testid="stSidebar"] {display:none !important;}
+#MainMenu {visibility:hidden !important;}
+footer {visibility:hidden !important;}
 
-function AboutDropdown({ open, onClose }) {
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <button
-            aria-label="Close About menu overlay"
-            className="fixed inset-0 z-30 bg-slate-900/10"
-            onClick={onClose}
-          />
+html, body, [class*="css"]{
+    font-family:'Inter',sans-serif;
+}
 
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.18 }}
-            className="absolute right-0 top-14 z-40 w-[420px] max-w-[92vw] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl"
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">About this project</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  Overview and workflow from the creator&apos;s perspective
-                </p>
-              </div>
-              <button
-                onClick={onClose}
-                className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
-              >
-                <X className="h-4 w-4" />
-              </button>
+.stApp{
+    background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+    color: var(--text);
+}
+
+.block-container{
+    max-width: 1360px;
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+}
+
+h1,h2,h3,h4,h5,h6,p,label,div,span{
+    color: var(--text);
+}
+
+h1{font-size:34px !important; line-height:1.1; font-weight:800 !important; letter-spacing:-0.03em;}
+h2{font-size:26px !important; line-height:1.2; font-weight:800 !important; letter-spacing:-0.02em;}
+h3{font-size:20px !important; line-height:1.25; font-weight:700 !important;}
+p, div, label{font-size:15px; line-height:1.7;}
+
+*:focus-visible{
+    outline:3px solid rgba(37,99,235,0.22) !important;
+    outline-offset:2px !important;
+    border-radius:10px !important;
+}
+
+div[data-testid="stFileUploader"] > section{
+    background:var(--surface) !important;
+    border:1px solid var(--line-strong) !important;
+    border-radius:18px !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+div[data-testid="stFileUploader"] > section:hover{
+    border-color:#bfdbfe !important;
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-1px);
+}
+
+div[data-baseweb="textarea"] textarea{
+    background:var(--surface) !important;
+    color:var(--text) !important;
+    border-radius:16px !important;
+    border:1px solid var(--line-strong) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+div[data-baseweb="textarea"] textarea:focus{
+    border-color:#93c5fd !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10) !important;
+}
+
+div.stButton > button{
+    min-height:48px;
+    border:none;
+    border-radius:14px;
+    padding:0.95rem 1.2rem;
+    font-weight:700;
+    font-size:15px;
+    color:#ffffff;
+    background:linear-gradient(90deg, var(--primary), #0ea5e9);
+    box-shadow:0 12px 24px rgba(37,99,235,0.18);
+    transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+div.stButton > button:hover{
+    background:linear-gradient(90deg, var(--primary-hover), #0284c7);
+    transform:translateY(-1px);
+    box-shadow:0 16px 30px rgba(37,99,235,0.22);
+}
+
+.header-row-title{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    color:var(--text);
+    margin-bottom:18px;
+    margin-top:2px;
+}
+
+.hero-wrap{
+    display:grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap:18px;
+    margin-bottom:24px;
+}
+
+.hero-main{
+    background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:30px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-main::after{
+    content:"";
+    position:absolute;
+    top:-40px;
+    right:-50px;
+    width:220px;
+    height:220px;
+    background:radial-gradient(circle, rgba(37,99,235,0.10), transparent 70%);
+    pointer-events:none;
+}
+
+.hero-chip{
+    display:inline-block;
+    background:var(--primary-soft);
+    color:var(--primary);
+    border:1px solid #bfdbfe;
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:18px;
+}
+
+.hero-title{
+    font-size:42px;
+    font-weight:800;
+    line-height:1.05;
+    letter-spacing:-0.04em;
+    margin-bottom:12px;
+    max-width:760px;
+}
+
+.hero-text{
+    color:#475569;
+    font-size:15px;
+    line-height:1.8;
+    max-width:760px;
+    margin-bottom:22px;
+}
+
+.hero-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:14px;
+}
+
+.hero-action-secondary{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:46px;
+    padding:0 16px;
+    border-radius:14px;
+    background:#ffffff;
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-weight:700;
+    font-size:14px;
+    box-shadow:var(--shadow);
+}
+
+.hero-side{
+    background:linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:26px;
+    box-shadow:var(--shadow);
+}
+
+.side-title{
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:10px;
+    letter-spacing:-0.02em;
+}
+
+.side-text{
+    color:#475569;
+    font-size:14px;
+    line-height:1.8;
+    margin-bottom:14px;
+}
+
+.side-list{
+    display:grid;
+    gap:12px;
+}
+
+.side-list-item{
+    background:#f8fbff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.side-list-item:hover{
+    transform:translateY(-1px);
+    box-shadow:var(--shadow);
+}
+
+.side-list-title{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:4px;
+}
+
+.side-list-text{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.65;
+}
+
+.digest-grid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap:16px;
+    margin-bottom:24px;
+}
+
+.digest-card{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.digest-card:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-hover);
+}
+
+.digest-kicker{
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:8px;
+}
+
+.digest-title{
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin-bottom:8px;
+}
+
+.digest-text{
+    color:#475569;
+    font-size:14px;
+    line-height:1.75;
+}
+
+.section-title{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin-bottom:6px;
+}
+
+.section-sub{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.75;
+    margin-bottom:10px;
+}
+
+.metric-card{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:18px;
+    min-height:270px;
+    box-shadow:var(--shadow);
+    transition:transform 0.18s ease, box-shadow 0.18s ease;
+    display:flex;
+    flex-direction:column;
+}
+
+.metric-card:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-hover);
+}
+
+.metric-title{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.metric-sub{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.65;
+    margin-top:auto;
+    text-align:center;
+}
+
+.circle-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:4px 0 8px 0;
+    min-height:170px;
+}
+
+.circle-value{
+    font-size:28px;
+    font-weight:800;
+    fill:var(--text);
+}
+
+.circle-label{
+    font-size:12px;
+    font-weight:600;
+    fill:var(--muted);
+}
+
+.assessment{
+    background:linear-gradient(90deg, #eff6ff, #f8fbff);
+    border:1px solid #bfdbfe;
+    border-radius:14px;
+    padding:14px 16px;
+    margin:14px 0 18px 0;
+    font-size:17px;
+    font-weight:700;
+    color:var(--primary);
+}
+
+.group-card{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    min-height:320px;
+    display:flex;
+    flex-direction:column;
+}
+
+.card-title{
+    font-size:16px;
+    font-weight:800;
+    margin-bottom:6px;
+    letter-spacing:-0.01em;
+}
+
+.card-sub{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.7;
+    margin-bottom:12px;
+}
+
+.skill-chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:8px;
+    align-content:flex-start;
+}
+
+.skill-chip{
+    display:inline-flex;
+    align-items:center;
+    min-height:38px;
+    color:white;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    white-space:nowrap;
+    box-shadow:0 8px 18px rgba(15,23,42,0.08);
+    transition:transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.skill-chip:hover{
+    transform:translateY(-1px);
+    box-shadow:0 12px 22px rgba(15,23,42,0.12);
+}
+
+.live-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.live-card{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    min-height:250px;
+}
+
+.live-card-title{
+    font-size:16px;
+    font-weight:800;
+    margin-bottom:12px;
+}
+
+.live-item{
+    background:#f8fbff;
+    border:1px solid var(--line);
+    border-left:4px solid var(--primary);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.live-item:hover{
+    transform:translateY(-1px);
+    box-shadow:var(--shadow);
+}
+
+.live-title{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:4px;
+}
+
+.live-text{
+    font-size:14px;
+    color:#475569;
+    line-height:1.75;
+}
+
+.improve-wrap{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+}
+
+.improve-item{
+    background:#fbfdff;
+    border:1px solid var(--line);
+    border-left:4px solid var(--success);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-bottom:12px;
+}
+
+.improve-item:last-child{
+    margin-bottom:0;
+}
+
+.improve-title{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.improve-text{
+    font-size:14px;
+    color:#475569;
+    line-height:1.8;
+}
+
+.contact-wrap{
+    background:#ffffff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-top:28px;
+}
+
+.contact-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:14px;
+    margin-top:12px;
+}
+
+.contact-card{
+    background:#f8fbff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+}
+
+.contact-label{
+    font-size:12px;
+    font-weight:700;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:6px;
+}
+
+.contact-value{
+    font-size:15px;
+    font-weight:600;
+    color:var(--text);
+    word-break:break-word;
+}
+
+.contact-value a{
+    color:var(--primary);
+    text-decoration:none;
+    font-weight:700;
+}
+
+.contact-value a:hover{
+    text-decoration:underline;
+}
+
+.footer-note{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:700;
+    margin-top:18px;
+    padding-bottom:10px;
+}
+
+.small-note{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.7;
+}
+
+hr{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:24px 0;
+}
+
+@media (max-width: 1100px){
+    .hero-wrap,
+    .digest-grid,
+    .live-grid{
+        grid-template-columns:1fr 1fr !important;
+    }
+    .contact-grid{
+        grid-template-columns:1fr !important;
+    }
+}
+
+@media (max-width: 900px){
+    .hero-wrap,
+    .digest-grid,
+    .live-grid{
+        grid-template-columns:1fr !important;
+    }
+    .hero-title{
+        font-size:34px;
+    }
+    .contact-grid{
+        grid-template-columns:1fr !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    *{
+        transition:none !important;
+        animation:none !important;
+        scroll-behavior:auto !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+def clamp_score(value):
+    try:
+        value = float(value)
+    except Exception:
+        value = 0.0
+    return max(0.0, min(100.0, value))
+
+
+def get_score_label(score):
+    score = clamp_score(score)
+    if score < 45:
+        return "Low Match"
+    if score < 70:
+        return "Moderate Match"
+    return "Strong Match"
+
+
+def get_score_color(score):
+    score = clamp_score(score)
+    if score < 45:
+        return "#ef4444"
+    if score < 70:
+        return "#f59e0b"
+    return "#10b981"
+
+
+def circular_progress_svg(percent, color):
+    percent = clamp_score(percent)
+    radius = 54
+    circumference = 2 * 3.14159 * radius
+    progress = circumference - (percent / 100.0) * circumference
+    return f"""<svg width="150" height="150" viewBox="0 0 150 150" aria-label="Score ring">
+<circle cx="75" cy="75" r="{radius}" stroke="#e5e7eb" stroke-width="10" fill="none"></circle>
+<circle cx="75" cy="75" r="{radius}" stroke="{color}" stroke-width="10" fill="none"
+stroke-linecap="round"
+stroke-dasharray="{circumference}"
+stroke-dashoffset="{progress}"
+transform="rotate(-90 75 75)"></circle>
+<text x="75" y="72" text-anchor="middle" class="circle-value">{percent:.0f}%</text>
+<text x="75" y="92" text-anchor="middle" class="circle-label">Match</text>
+</svg>"""
+
+
+def render_score_card(title, value, subtitle=""):
+    value = clamp_score(value)
+    color = get_score_color(value)
+    st.markdown(
+        f"""<div class="metric-card">
+<div class="metric-title">{title}</div>
+<div class="circle-wrap">{circular_progress_svg(value, color)}</div>
+<div class="metric-sub">{subtitle}</div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_skill_card(title, subtitle, items, color):
+    chips = (
+        "".join(
+            f"<span class='skill-chip' style='background:{color};'>{str(item).strip()}</span>"
+            for item in items if str(item).strip()
+        )
+        if items
+        else "<div class='small-note'>None</div>"
+    )
+    st.markdown(
+        f"""<div class="group-card">
+<div class="card-title">{title}</div>
+<div class="card-sub">{subtitle}</div>
+<div class="skill-chip-row">{chips}</div>
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_live_card(card_title, items):
+    inner = ""
+    for title, text, color in items:
+        inner += f"""<div class="live-item" style="border-left-color:{color};">
+<div class="live-title">{title}</div>
+<div class="live-text">{text}</div>
+</div>"""
+    st.markdown(
+        f"""<div class="live-card">
+<div class="live-card-title">{card_title}</div>
+{inner}
+</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_improvements_card(suggestions):
+    if not suggestions:
+        body = "<div class='small-note'>No recommendations available.</div>"
+    else:
+        body = "".join(
+            f"""<div class="improve-item">
+<div class="improve-title">Improvement {idx}</div>
+<div class="improve-text">{suggestion}</div>
+</div>"""
+            for idx, suggestion in enumerate(suggestions, start=1)
+        )
+    st.markdown(
+        f"""<div class="improve-wrap">{body}</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def build_live_updates(missing_skills, keyword_score, final_score, semantic_similarity_score):
+    updates = []
+
+    if missing_skills:
+        updates.append(
+            (
+                "Update needed",
+                "Add stronger proof-based bullets to show practical exposure in the main missing areas.",
+                "#ef4444",
+            )
+        )
+    if keyword_score < 50:
+        updates.append(
+            (
+                "Keyword alignment",
+                "Rewrite your summary and top projects using more role-specific wording from the job description.",
+                "#f59e0b",
+            )
+        )
+    if semantic_similarity_score < 65:
+        updates.append(
+            (
+                "Project framing",
+                "Describe the problem, approach, tools, and outcomes more clearly to improve meaning-level fit.",
+                "#2563eb",
+            )
+        )
+    if final_score < 70:
+        updates.append(
+            (
+                "Impact visibility",
+                "Add measurable outcomes such as accuracy, efficiency, speed, or deployment impact.",
+                "#10b981",
+            )
+        )
+    if not updates:
+        updates.append(
+            (
+                "Current status",
+                "The resume is already fairly aligned. Focus on stronger project framing and clearer impact statements.",
+                "#10b981",
+            )
+        )
+    return updates[:4]
+
+
+header_left, header_right = st.columns([0.82, 0.18])
+
+with header_left:
+    st.markdown("<div class='header-row-title'>AI Resume Analyzer</div>", unsafe_allow_html=True)
+
+with header_right:
+    with st.popover("About", use_container_width=True):
+        st.markdown("### Project Overview")
+        st.write(
+            "This project analyzes how well a resume matches a job description and provides practical guidance to improve resume quality for technical roles."
+        )
+
+        st.markdown("### How it works")
+        st.write(
+            "The application accepts a PDF resume and a job description, extracts relevant skills, compares the content semantically, evaluates keyword relevance, and produces fit scores with resume improvement recommendations."
+        )
+
+        st.markdown("### Skills used to build this project")
+        st.write(
+            """
+- Python
+- FastAPI
+- Streamlit
+- NLP-based skill extraction
+- Sentence Transformers
+- Semantic similarity
+- Resume parsing
+- Dashboard UI/UX design
+- Product-style workflow thinking
+"""
+        )
+
+st.markdown(
+    """<div class="hero-wrap">
+<div class="hero-main">
+<div class="hero-chip">Resume review workflow</div>
+<div class="hero-title">Faster resume reviews with actionable insights</div>
+<div class="hero-text">
+Upload a resume, compare it against a target role, and review fit, score breakdowns,
+missing signals, and concrete updates that can improve the quality of the resume.
+</div>
+<div class="hero-actions">
+<div class="hero-action-secondary">Review Resume</div>
+<div class="hero-action-secondary">Get Insights</div>
+</div>
+</div>
+<div class="hero-side">
+<div class="side-title">What you will get</div>
+<div class="side-text">
+A concise overview, circular metrics, separate skill cards, live update guidance,
+and structured recommendations that help improve alignment for the target role.
+</div>
+<div class="side-list">
+<div class="side-list-item">
+<div class="side-list-title">Circular metrics</div>
+<div class="side-list-text">Final score, skill fit, semantic fit, and keyword match percentages.</div>
+</div>
+<div class="side-list-item">
+<div class="side-list-title">Hiring-focused review</div>
+<div class="side-list-text">A cleaner interpretation of strengths, gaps, and likely improvement areas.</div>
+</div>
+<div class="side-list-item">
+<div class="side-list-title">Valuable updates</div>
+<div class="side-list-text">High-signal next steps that improve the resume beyond simple keyword stuffing.</div>
+</div>
+</div>
+</div>
+</div>""",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """<div class="digest-grid">
+<div class="digest-card">
+<div class="digest-kicker">Overview</div>
+<div class="digest-title">Structured score breakdown</div>
+<div class="digest-text">See a professional, quick-read summary before diving into detailed recommendations.</div>
+</div>
+<div class="digest-card">
+<div class="digest-kicker">Skills</div>
+<div class="digest-title">Separate skill cards</div>
+<div class="digest-text">Review current skills, role skills, and missing areas in clearly separated zones.</div>
+</div>
+<div class="digest-card">
+<div class="digest-kicker">Activity</div>
+<div class="digest-title">Live update guidance</div>
+<div class="digest-text">Identify what needs to change now to improve the current resume for this role.</div>
+</div>
+<div class="digest-card">
+<div class="digest-kicker">Next step</div>
+<div class="digest-title">Action-oriented improvements</div>
+<div class="digest-text">Turn the output into concrete edits for summary, projects, language, and impact statements.</div>
+</div>
+</div>""",
+    unsafe_allow_html=True,
+)
+
+st.markdown("<div class='section-title'>Input</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='section-sub'>Upload a resume and paste a job description to generate a fit analysis.</div>",
+    unsafe_allow_html=True,
+)
+
+resume = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+jd = st.text_area("Paste Job Description", height=220)
+analyze = st.button("Review Resume")
+
+if analyze:
+    if not resume or not jd:
+        st.error("Please upload a resume and paste a job description.")
+    else:
+        with st.spinner("Reviewing resume fit and generating insights..."):
+            try:
+                files = {"resume": resume}
+                data = {"job_description": jd}
+                response = requests.post(BACKEND_URL, files=files, data=data, timeout=120)
+
+                if response.status_code != 200:
+                    st.error(f"API Error: {response.text}")
+                else:
+                    result = response.json()
+
+                    final_score = clamp_score(result.get("final_score", 0))
+                    skill_match_score = clamp_score(result.get("skill_match_score", 0))
+                    semantic_similarity_score = clamp_score(result.get("semantic_similarity_score", 0))
+                    keyword_score = clamp_score(result.get("keyword_score", 0))
+
+                    resume_skills = result.get("resume_skills", [])
+                    jd_skills = result.get("jd_skills", [])
+                    missing_skills = result.get("missing_skills", [])
+                    suggestions = result.get("suggestions", [])
+
+                    st.markdown("<hr>", unsafe_allow_html=True)
+                    st.markdown("<div class='section-title'>Results</div>", unsafe_allow_html=True)
+                    st.markdown(
+                        "<div class='section-sub'>Review the high-level summary first, then move into live activity, skill cards, and improvement guidance.</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    m1, m2, m3, m4 = st.columns(4)
+                    with m1:
+                        render_score_card("Final Match Score", final_score, "Overall role fit")
+                    with m2:
+                        render_score_card("Skill Match", skill_match_score, "Resume vs role skills")
+                    with m3:
+                        render_score_card("Semantic Score", semantic_similarity_score, "Meaning-level alignment")
+                    with m4:
+                        render_score_card("Keyword Score", keyword_score, "Keyword relevance")
+
+                    st.markdown(
+                        f"<div class='assessment'>Overall Assessment: {result.get('score_band', get_score_label(final_score))}</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    st.markdown("<div class='section-title'>Live activity</div>", unsafe_allow_html=True)
+                    st.markdown(
+                        "<div class='section-sub'>These are the most important updates currently needed to make the resume stronger for this role.</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    updates = build_live_updates(
+                        missing_skills,
+                        keyword_score,
+                        final_score,
+                        semantic_similarity_score,
+                    )
+
+                    left_updates = updates[:2]
+                    right_updates = updates[2:]
+
+                    left_col, right_col = st.columns(2)
+                    with left_col:
+                        render_live_card("Priority updates", left_updates)
+                    with right_col:
+                        render_live_card("Recommended focus", right_updates if right_updates else left_updates)
+
+                    st.markdown("<div class='section-title'>Skill cards</div>", unsafe_allow_html=True)
+                    st.markdown(
+                        "<div class='section-sub'>Each skill group sits in its own card so the review is easier to scan and compare.</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        render_skill_card(
+                            "Resume Skills",
+                            "Skills currently found in the resume.",
+                            resume_skills,
+                            "#3b82f6",
+                        )
+                    with c2:
+                        render_skill_card(
+                            "Skills to Add / Highlight",
+                            "The main missing or underrepresented signals for the role.",
+                            missing_skills,
+                            "#ef4444",
+                        )
+                    with c3:
+                        render_skill_card(
+                            "Job Description Skills",
+                            "Important skills detected from the target role.",
+                            jd_skills,
+                            "#8b5cf6",
+                        )
+
+                    st.markdown("<div class='section-title'>Resume improvements</div>", unsafe_allow_html=True)
+                    st.markdown(
+                        "<div class='section-sub'>Use these recommendations as the next editing pass for summary, project bullets, evidence, and positioning.</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                    render_improvements_card(suggestions)
+
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<div class='section-title'>Contact</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='section-sub'>Get in touch for collaboration, project discussions, or portfolio opportunities.</div>",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+<div class="contact-wrap">
+    <div class="contact-grid">
+        <div class="contact-card">
+            <div class="contact-label">Email</div>
+            <div class="contact-value">abdulxrahman.ai@gmail.com</div>
+        </div>
+        <div class="contact-card">
+            <div class="contact-label">Phone</div>
+            <div class="contact-value">+1 (773) 996-2993</div>
+        </div>
+        <div class="contact-card">
+            <div class="contact-label">GitHub</div>
+            <div class="contact-value">
+                <a href="https://github.com/abdulxrahman-ai" target="_blank">github.com/abdulxrahman-ai</a>
             </div>
-
-            <div className="max-h-[70vh] overflow-y-auto px-5 py-5">
-              <section>
-                <div className="mb-3 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-slate-700" />
-                  <h3 className="text-sm font-semibold text-slate-900">Project overview</h3>
-                </div>
-                <div className="space-y-3 text-sm leading-6 text-slate-600">
-                  {projectOverviewPoints.map((point) => (
-                    <p key={point} className="rounded-2xl bg-slate-50 px-4 py-3">
-                      {point}
-                    </p>
-                  ))}
-                </div>
-              </section>
-
-              <section className="mt-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-slate-700" />
-                  <h3 className="text-sm font-semibold text-slate-900">How it works</h3>
-                </div>
-                <div className="space-y-3">
-                  {howItWorksSteps.map((step, index) => (
-                    <div
-                      key={step}
-                      className="flex gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3"
-                    >
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
-                        {index + 1}
-                      </div>
-                      <p className="text-sm leading-6 text-slate-600">{step}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function Sidebar() {
-  return (
-    <aside className="hidden w-[300px] shrink-0 border-r border-slate-200 bg-slate-50 xl:block">
-      <div className="sticky top-0 h-screen overflow-y-auto px-6 py-8">
-        <h2 className="text-[20px] font-bold tracking-tight text-slate-900">Navigation</h2>
-        <p className="mt-4 text-sm leading-7 text-slate-500">
-          A structured workspace for reviewing resumes, checking fit, and improving role alignment.
-        </p>
-
-        <nav className="mt-6">
-          <ul className="space-y-1.5">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.label}>
-                  <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-slate-700 transition hover:bg-white hover:shadow-sm">
-                    <Icon className="h-4 w-4" />
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        <div className="mt-8 space-y-4">
-          <div className="rounded-3xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm leading-7 text-blue-700">
-            Role-focused review for AI/ML, Data Science, and Software applications.
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white px-4 py-4 text-sm leading-7 text-slate-500">
-            Keep bullet points outcome-driven and tool-specific for stronger resume impact.
-          </div>
         </div>
-
-        <div className="mt-8">
-          <h3 className="text-[16px] font-semibold text-slate-900">Quick guidance</h3>
-          <ul className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
-            <li>• Upload a PDF resume</li>
-            <li>• Paste a complete role description</li>
-            <li>• Review the score and gaps</li>
-            <li>• Use the suggestions to strengthen the resume</li>
-          </ul>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function Header({ aboutOpen, setAboutOpen }) {
-  return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 lg:px-8">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
-            <FileText className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight text-slate-900">
-              AI Resume Analyzer
-            </h1>
-            <p className="text-xs text-slate-500">Resume review dashboard with structured guidance</p>
-          </div>
-        </div>
-
-        <div className="relative">
-          <button
-            onClick={() => setAboutOpen((prev) => !prev)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            About
-            <ChevronDown
-              className={`h-4 w-4 transition ${aboutOpen ? "rotate-180" : "rotate-0"}`}
-            />
-          </button>
-
-          <AboutDropdown open={aboutOpen} onClose={() => setAboutOpen(false)} />
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function HeroSection() {
-  return (
-    <section className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-      <div className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
-        Resume review workflow
-      </div>
-
-      <div className="mt-5 max-w-4xl">
-        <h2 className="text-4xl font-bold tracking-tight text-slate-900 lg:text-6xl">
-          Faster resume reviews with actionable insights
-        </h2>
-        <p className="mt-5 max-w-3xl text-base leading-8 text-slate-600 lg:text-lg">
-          Upload a resume, compare it against a target role, and review fit, score
-          breakdowns, missing signals, and concrete updates that improve quality.
-        </p>
-      </div>
-
-      <div className="mt-8 flex flex-wrap gap-3">
-        <button className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-          Review Resume
-        </button>
-        <button className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-md">
-          Get Insights
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function DigestCards() {
-  return (
-    <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {digestCards.map((card) => {
-        const Icon = card.icon;
-        return (
-          <motion.div
-            key={card.title}
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.16 }}
-            className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-              <Icon className="h-5 w-5" />
-            </div>
-            <h3 className="mt-4 text-base font-semibold text-slate-900">{card.title}</h3>
-            <p className="mt-2 text-sm leading-7 text-slate-600">{card.description}</p>
-          </motion.div>
-        );
-      })}
-    </section>
-  );
-}
-
-function FeaturesSection() {
-  return (
-    <section className="mt-6 rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-      <h3 className="text-2xl font-semibold tracking-tight text-slate-900">What you will get</h3>
-      <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600 lg:text-base">
-        A concise overview, circular metrics, separate skill cards, live update guidance,
-        and structured recommendations that help improve alignment for the target role.
-      </p>
-
-      <div className="mt-6 space-y-4">
-        {featureCards.map((feature) => (
-          <motion.div
-            key={feature.title}
-            whileHover={{ y: -2 }}
-            transition={{ duration: 0.15 }}
-            className="rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-5"
-          >
-            <h4 className="text-base font-semibold text-slate-900">{feature.title}</h4>
-            <p className="mt-2 text-sm leading-7 text-slate-600">{feature.body}</p>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export default function App() {
-  const [aboutOpen, setAboutOpen] = useState(false);
-
-  const pageTitle = useMemo(() => "AI Resume Analyzer", []);
-
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <Header aboutOpen={aboutOpen} setAboutOpen={setAboutOpen} />
-
-      <div className="mx-auto flex max-w-[1400px]">
-        <Sidebar />
-
-        <main className="min-w-0 flex-1 px-5 py-6 lg:px-8 lg:py-8">
-          <div className="mb-5 text-sm text-slate-500">
-            Dashboard / Resume Review / <span className="font-medium text-slate-700">Current Session</span>
-          </div>
-
-          <div className="mb-6 lg:hidden">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">{pageTitle}</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-600">
-              Resume review dashboard with structured metrics and improvement guidance.
-            </p>
-          </div>
-
-          <HeroSection />
-          <DigestCards />
-          <FeaturesSection />
-        </main>
-      </div>
     </div>
-  );
-}
+</div>
+<div class="footer-note">By Abdul Rahman</div>
+""",
+    unsafe_allow_html=True,
+)
